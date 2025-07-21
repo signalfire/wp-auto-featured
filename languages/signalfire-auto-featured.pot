@@ -1,0 +1,87 @@
+# Copyright (C) 2024 Signalfire Auto Featured
+# This file is distributed under the same license as the Signalfire Auto Featured plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Signalfire Auto Featured 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/signalfire-auto-featured\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-01-01T00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: signalfire-auto-featured\n"
+
+#: signalfire-auto-featured.php:75
+msgid "Featured image automatically set from post content."
+msgstr ""
+
+#: signalfire-auto-featured.php:80
+msgid "Fallback featured image set."
+msgstr ""
+
+#: signalfire-auto-featured.php:132
+msgid "Auto Featured Settings"
+msgstr ""
+
+#: signalfire-auto-featured.php:133
+msgid "Auto Featured"
+msgstr ""
+
+#: signalfire-auto-featured.php:143
+msgid "Auto Featured Image Settings"
+msgstr ""
+
+#: signalfire-auto-featured.php:150
+msgid "Enable for Post Types"
+msgstr ""
+
+#: signalfire-auto-featured.php:157
+msgid "Fallback Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:164
+msgid "Configure the auto featured image functionality."
+msgstr ""
+
+#: signalfire-auto-featured.php:180
+msgid "Select which post types should have auto featured images enabled."
+msgstr ""
+
+#: signalfire-auto-featured.php:194
+msgid "Remove Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:199
+msgid "Select Fallback Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:201
+msgid "This image will be used as the featured image when no image is found in the post content."
+msgstr ""
+
+#: signalfire-auto-featured.php:213
+msgid "Select Fallback Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:215
+msgid "Select Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:226
+msgid "Remove Image"
+msgstr ""
+
+#: signalfire-auto-featured.php:236
+msgid "Security check failed."
+msgstr ""
+
+#: signalfire-auto-featured.php:251
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: signalfire-auto-featured.php:256
+msgid "Auto Featured Image Settings"
+msgstr ""
