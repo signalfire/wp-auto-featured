@@ -1,13 +1,36 @@
 <?php
 /**
  * Plugin Name: Signalfire Auto Featured
- * Plugin URI: https://signalfire.com
+ * Plugin URI: https://wordpress.org/plugins/signalfire-auto-featured/
  * Description: Automatically sets the first image in post content as the featured image if none is already set.
  * Version: 1.0.0
  * Author: Signalfire
+ * Author URI: https://signalfire.com
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: signalfire-auto-featured
  * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.8
+ * Requires PHP: 7.4
+ * Network: true
  */
+
+/*
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 
 // Prevent direct access
 if (!defined('ABSPATH')) {
@@ -66,13 +89,11 @@ class SignalfireAutoFeatured {
         
         if ($image_id) {
             set_post_thumbnail($post_id, $image_id);
-            $this->log_action(__('Featured image automatically set from post content.', 'signalfire-auto-featured'), $post_id, $image_id);
         } else {
             // Use fallback image if no image found
             $fallback_image_id = isset($settings['fallback_image']) ? $settings['fallback_image'] : '';
             if ($fallback_image_id) {
                 set_post_thumbnail($post_id, $fallback_image_id);
-                $this->log_action(__('Fallback featured image set.', 'signalfire-auto-featured'), $post_id, $fallback_image_id);
             }
         }
     }
@@ -96,13 +117,6 @@ class SignalfireAutoFeatured {
                     return $attachment_id;
                 }
                 
-                // If not found, try to extract from wp-content uploads
-                if (strpos($image_url, wp_upload_dir()['baseurl']) !== false) {
-                    $attachment_id = $this->get_attachment_id_from_url($image_url);
-                    if ($attachment_id) {
-                        return $attachment_id;
-                    }
-                }
             }
             
             // Check for wp-image-{id} class
@@ -114,27 +128,7 @@ class SignalfireAutoFeatured {
         return false;
     }
     
-    private function get_attachment_id_from_url($image_url) {
-        global $wpdb;
-        
-        $attachment = $wpdb->get_col($wpdb->prepare(
-            "SELECT ID FROM {$wpdb->posts} WHERE guid='%s';", 
-            $image_url
-        ));
-        
-        return !empty($attachment) ? $attachment[0] : false;
-    }
     
-    private function log_action($message, $post_id, $image_id) {
-        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-            error_log(sprintf(
-                '[Signalfire Auto Featured] %s Post ID: %d, Image ID: %d',
-                $message,
-                $post_id,
-                $image_id
-            ));
-        }
-    }
     
     public function add_admin_menu() {
         add_options_page(
@@ -174,7 +168,7 @@ class SignalfireAutoFeatured {
     }
     
     public function main_section_callback() {
-        echo '<p>' . __('Configure the auto featured image functionality.', 'signalfire-auto-featured') . '</p>';
+        echo '<p>' . esc_html__('Configure the auto featured image functionality.', 'signalfire-auto-featured') . '</p>';
     }
     
     public function enabled_post_types_callback() {
@@ -184,17 +178,16 @@ class SignalfireAutoFeatured {
         
         echo '<fieldset>';
         foreach ($post_types as $post_type) {
-            $checked = in_array($post_type->name, $enabled_post_types) ? 'checked' : '';
             printf(
                 '<label><input type="checkbox" name="%s[enabled_post_types][]" value="%s" %s> %s</label><br>',
-                $this->option_name,
-                $post_type->name,
-                $checked,
-                $post_type->label
+                esc_attr($this->option_name),
+                esc_attr($post_type->name),
+                checked(in_array($post_type->name, $enabled_post_types), true, false),
+                esc_html($post_type->label)
             );
         }
         echo '</fieldset>';
-        echo '<p class="description">' . __('Select which post types should have auto featured images enabled.', 'signalfire-auto-featured') . '</p>';
+        echo '<p class="description">' . esc_html__('Select which post types should have auto featured images enabled.', 'signalfire-auto-featured') . '</p>';
     }
     
     public function fallback_image_callback() {
@@ -202,21 +195,20 @@ class SignalfireAutoFeatured {
         $fallback_image_id = isset($settings['fallback_image']) ? $settings['fallback_image'] : '';
         
         echo '<div class="saf-image-upload">';
-        echo '<input type="hidden" name="' . $this->option_name . '[fallback_image]" id="fallback_image_id" value="' . $fallback_image_id . '">';
+        echo '<input type="hidden" name="' . esc_attr($this->option_name) . '[fallback_image]" id="fallback_image_id" value="' . esc_attr($fallback_image_id) . '">';
         echo '<div id="fallback_image_preview">';
         
         if ($fallback_image_id) {
-            $image_url = wp_get_attachment_image_src($fallback_image_id, 'medium');
-            if ($image_url) {
-                echo '<img src="' . $image_url[0] . '" style="max-width: 300px; height: auto;">';
-                echo '<br><button type="button" class="button" id="remove_fallback_image">' . __('Remove Image', 'signalfire-auto-featured') . '</button>';
+            if (wp_get_attachment_image($fallback_image_id, 'medium')) {
+                echo wp_get_attachment_image($fallback_image_id, 'medium', false, array('style' => 'max-width: 300px; height: auto;'));
+                echo '<br><button type="button" class="button" id="remove_fallback_image">' . esc_html__('Remove Image', 'signalfire-auto-featured') . '</button>';
             }
         }
         
         echo '</div>';
-        echo '<button type="button" class="button" id="upload_fallback_image">' . __('Select Fallback Image', 'signalfire-auto-featured') . '</button>';
+        echo '<button type="button" class="button" id="upload_fallback_image">' . esc_html__('Select Fallback Image', 'signalfire-auto-featured') . '</button>';
         echo '</div>';
-        echo '<p class="description">' . __('This image will be used as the featured image when no image is found in the post content.', 'signalfire-auto-featured') . '</p>';
+        echo '<p class="description">' . esc_html__('This image will be used as the featured image when no image is found in the post content.', 'signalfire-auto-featured') . '</p>';
         
         // Add media uploader script
         $this->add_media_uploader_script();
@@ -237,9 +229,9 @@ class SignalfireAutoFeatured {
                 }
                 
                 mediaUploader = wp.media({
-                    title: '<?php echo __('Select Fallback Image', 'signalfire-auto-featured'); ?>',
+                    title: '<?php echo esc_js(__('Select Fallback Image', 'signalfire-auto-featured')); ?>',
                     button: {
-                        text: '<?php echo __('Select Image', 'signalfire-auto-featured'); ?>'
+                        text: '<?php echo esc_js(__('Select Image', 'signalfire-auto-featured')); ?>'
                     },
                     multiple: false
                 });
@@ -247,7 +239,9 @@ class SignalfireAutoFeatured {
                 mediaUploader.on('select', function() {
                     var attachment = mediaUploader.state().get('selection').first().toJSON();
                     $('#fallback_image_id').val(attachment.id);
-                    $('#fallback_image_preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;"><br><button type="button" class="button" id="remove_fallback_image"><?php echo __('Remove Image', 'signalfire-auto-featured'); ?></button>');
+                    
+                    // Reload the page to show the image using wp_get_attachment_image()
+                    location.reload();
                 });
                 
                 mediaUploader.open();
@@ -264,8 +258,9 @@ class SignalfireAutoFeatured {
     
     public function sanitize_settings($input) {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['_wpnonce'], 'saf_settings_group-options')) {
-            wp_die(__('Security check failed.', 'signalfire-auto-featured'));
+        $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        if (!$nonce || !wp_verify_nonce($nonce, 'saf_settings_group-options')) {
+            wp_die(esc_html__('Security check failed.', 'signalfire-auto-featured'));
         }
         
         $sanitized = array();
@@ -285,12 +280,12 @@ class SignalfireAutoFeatured {
     
     public function settings_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'signalfire-auto-featured'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'signalfire-auto-featured'));
         }
         
         ?>
         <div class="wrap">
-            <h1><?php echo __('Auto Featured Image Settings', 'signalfire-auto-featured'); ?></h1>
+            <h1><?php echo esc_html__('Auto Featured Image Settings', 'signalfire-auto-featured'); ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields('saf_settings_group');
